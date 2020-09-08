@@ -7,8 +7,7 @@ from accountant.sqliteConnector import sqliteConnector
 import threading
 import time
 
-token = "1379702508:AAGquXO8II-Uzky60_YHzR7Ni6yddMQOZhg"
-bot = telebot.TeleBot(token=token)
+bot = telebot.TeleBot(token="1379702508:AAGquXO8II-Uzky60_YHzR7Ni6yddMQOZhg")
 moder = Mode()
 
 
