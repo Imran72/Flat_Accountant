@@ -5,7 +5,7 @@ import telebot
 
 from . import config
 
-bot = telebot.TeleBot(token="1379702508:AAGquXO8II-Uzky60_YHzR7Ni6yddMQOZhg")
+bot = telebot.TeleBot("1379702508:AAGquXO8II-Uzky60_YHzR7Ni6yddMQOZhg")
 
 
 # ORM-handmade или класс взаимодействия с базой данных, реализованной на Sqlite
