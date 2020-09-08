@@ -14,12 +14,14 @@ class sqliteConnector:
         self.start_day = datetime.date.today()
         self.days_of_life = 7
 
+    # Запись данных пользователя
     def add_note(self, username, bill_date, bill, chat_id):
         with sqlite3.connect('mydatabase.db') as conn:
             conn.cursor().execute("""INSERT INTO notes (username, date, bill, chat_id)
             VALUES (?, ?, ?, ?)""",
                                   (username, bill_date, bill, chat_id))
 
+    # Ежедневная проверка на истечение срока сбора данных
     def check_days_of_life(self):
         with sqlite3.connect('mydatabase.db') as conn:
             try:
@@ -43,12 +45,15 @@ class sqliteConnector:
                 print("Вероятно еще нет данных")
                 return False
 
+    # Функция зачистки ненужных данных
     def clean_data(self):
         with sqlite3.connect('mydatabase.db') as conn:
+            self.send_pdf()
             sql = """DELETE from notes"""
             cursor = conn.cursor()
             cursor.execute(sql)
 
+    # Запрос на подсчет полной информации, расчет задолжностей по каждому пользователю
     def account_distribution(self):
         dict = {}
         with sqlite3.connect('mydatabase.db') as conn:
@@ -74,6 +79,7 @@ class sqliteConnector:
                 text = 'Вы чисты как снег. Заплатили вровень со средним значением, от чего вам полагается похвала в отсутсвие вознаграждения!'
             bot.send_message(key, text)
 
+    # Функция, возвращающая общую информацию по всем пользователям
     def get_common_info(self):
         dict = {}
 
@@ -93,6 +99,7 @@ class sqliteConnector:
             index += 1
         return message
 
+    # Функция, возвращающая список пользователей
     def get_users(self):
         st = ''
         index = 1
@@ -105,6 +112,7 @@ class sqliteConnector:
                 index += 1
         return st
 
+    # Информация относительно определенного лица -  зависит от выбора
     def get_private_info(self, number):
         with sqlite3.connect('mydatabase.db') as conn:
             sql = """SELECT DISTINCT username, chat_id FROM notes """
@@ -124,3 +132,7 @@ class sqliteConnector:
             for el in records:
                 st += str(el[2]) + ' потрачено ' + str(el[3]) + ' рублей\n'
             return st
+
+    # По истечению 7 дней данные затираются, формируется PDF документ, отправляемый...
+    def send_pdf(self):
+        pass
