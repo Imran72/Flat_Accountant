@@ -12,7 +12,7 @@ bot = telebot.TeleBot(token=token)
 # ORM-handmade или класс взаимодействия с базой данных, реализованной на Sqlite
 class sqliteConnector:
     def __init__(self):
-        self.start_day = datetime.date.today()
+        self.start_day = '2020-09-08'
         self.days_of_life = 7
 
     # Запись данных пользователя
