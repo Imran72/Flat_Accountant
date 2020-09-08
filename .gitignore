@@ -19,3 +19,5 @@ ENV/
 # PyCharm settings
 /.idea
 /.DS_Store
+/*.db
+/Procfile
