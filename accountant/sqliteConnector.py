@@ -10,7 +10,7 @@ bot = telebot.TeleBot(token=token)
 class sqliteConnector:
     def __init__(self):
         self.start_day = datetime.date.today()
-        self.days_of_life = 2
+        self.days_of_life = 7
 
     def add_note(self, username, bill_date, bill, chat_id):
         with sqlite3.connect('mydatabase.db') as conn:
@@ -72,14 +72,15 @@ class sqliteConnector:
                 text = 'Вы чисты как снег. Заплатили вровень со средним значением, от чего вам полагается похвала в отсутсвие вознаграждения!'
             bot.send_message(key, text)
 
-    def get_info(self):
+    def get_common_info(self):
         dict = {}
 
         with sqlite3.connect('mydatabase.db') as conn:
-            sql = """SELECT * FROM notes """
+            sql = """SELECT * FROM notes"""
             cursor = conn.cursor()
             records = cursor.execute(sql)
-            for info, bill_iter in itertools.groupby(records, key=lambda r: str(r[1]) + '?' + str(r[4])):
+            records = sorted(records, key=lambda r: r[4])
+            for info, bill_iter in itertools.groupby(records, key=lambda r: str(r[1]) + "?" + str(r[4])):
                 full_bill = sum([i[3] for i in bill_iter])
                 dict[info] = full_bill
         message = ""
@@ -101,3 +102,23 @@ class sqliteConnector:
                 st += "{}. {}\n".format(index, str(el)[2:-3])
                 index += 1
         return st
+
+    def get_private_info(self, number):
+        with sqlite3.connect('mydatabase.db') as conn:
+            sql = """SELECT DISTINCT username, chat_id FROM notes """
+            cursor = conn.cursor()
+            records = cursor.execute(sql)
+            name = ''
+            chat_id = 0
+            index = 1
+            for el in records:
+                if index == number:
+                    name = el[0]
+                    chat_id = el[1]
+                    break
+                index += 1
+            records = conn.cursor().execute("""SELECT * FROM notes WHERE username = (?)""", (name,))
+            st = 'Информация по пользователю [{}](tg://user?id={}):\n'.format(name, chat_id)
+            for el in records:
+                st += str(el[2]) + ' потрачено ' + str(el[3]) + ' рублей\n'
+            return st

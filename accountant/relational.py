@@ -24,13 +24,22 @@ def insert_query(message, text):
     conn.add_note(username, date, float(text), chat_id)
 
 
+# Возвращает информацию по всем пользователям (неподробно)
 def get_common_info():
     conn = sqliteConnector()
-    mail = conn.get_info()
+    mail = conn.get_common_info()
     return mail
 
 
-def get_own_info():
+# Возвращает списик пользователей по которым в дальнейшем можно запросить полную информацию
+def get_users():
     conn = sqliteConnector()
     mail = conn.get_users()
+    return mail
+
+
+# Возвращает приватную и полную информацию по пользователю: сумма+дата траты
+def get_private_info(number):
+    conn = sqliteConnector()
+    mail = conn.get_private_info(number)
     return mail
