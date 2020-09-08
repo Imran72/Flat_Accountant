@@ -17,4 +17,5 @@ venv/
 ENV/
 
 # PyCharm settings
-.idea
+/.idea
+/.DS_Store
