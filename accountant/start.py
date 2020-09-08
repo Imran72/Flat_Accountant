@@ -1,8 +1,9 @@
 from accountant.relational import is_number, insert_query, get_users, get_common_info, get_private_info
 import telebot
 from .Mode import Mode
+from . import config
 
-token = "1379702508:AAGquXO8II-Uzky60_YHzR7Ni6yddMQOZhg"
+token = config.token
 bot = telebot.TeleBot(token=token)
 moder = Mode()
 

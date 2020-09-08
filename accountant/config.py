@@ -1,4 +1,2 @@
-DB_USER = 'imrantimkanov'
-DB_PASSWORD = '1234'
-DB_NAME = 'notes'
+token = "1379702508:AAGquXO8II-Uzky60_YHzR7Ni6yddMQOZhg"
 
