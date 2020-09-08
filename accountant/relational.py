@@ -17,7 +17,7 @@ def is_number(s):
 
 # Формирование данных и запись в базу данных
 def insert_query(message, text):
-    username = message.chat.username
+    username = message.chat.first_name
     chat_id = message.chat.id
     date = datetime.date.today()
     conn = sqliteConnector()

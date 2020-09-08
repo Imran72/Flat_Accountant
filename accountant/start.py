@@ -2,6 +2,10 @@ from accountant.relational import is_number, insert_query, get_users, get_common
 import telebot
 from .Mode import Mode
 from . import config
+import schedule
+from accountant.sqliteConnector import sqliteConnector
+import threading
+import time
 
 token = config.token
 bot = telebot.TeleBot(token=token)
@@ -33,11 +37,16 @@ def send_text(message):
     text = message.text
     if text == 'Узнать общие данные⚖️':
         mail = get_common_info()
+        print(mail)
         bot.send_message(chat_id, mail, parse_mode='Markdown')
     elif text == 'Узнать частные данные🤷‍':
-        mail = "Выберите номер пользователя, который вас интересует:\n\n" + get_users()
-        bot.send_message(chat_id, mail)
-        moder.mode = Mode.States.PRIVATE_INFO
+        if get_users() != "Пока данных нет":
+            mail = "Выберите номер пользователя, который вас интересует:\n\n" + get_users()
+            bot.send_message(chat_id, mail)
+            moder.mode = Mode.States.PRIVATE_INFO
+        else:
+            mail = "Пока данных нет"
+            bot.send_message(chat_id, mail)
     elif text == 'Добавить Money🤑️':
         mail = "Прекрасный выбор! Вводите сумму🤖"
         moder.mode = Mode.States.RECORDING_STATE
@@ -103,24 +112,23 @@ def send_user_info(message):
         bot.send_message(chat_id, mail)
 
 
-'''
 # ежедневная проверка на запись
 def job():
-  conn = sqliteConnector()
-  conn.check_days_of_life()
+    conn = sqliteConnector()
+    conn.check_days_of_life()
 
 
 schedule.every().day.at("10:30").do(job)
 
 
 def go():
-  while True:
-      schedule.run_pending()
-      time.sleep(1)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 
 t = threading.Thread(target=go, name="тест")
 t.start()
-'''
 
 bot.polling()
+

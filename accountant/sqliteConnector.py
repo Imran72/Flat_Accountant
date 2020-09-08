@@ -2,6 +2,7 @@ import sqlite3
 import datetime
 import itertools
 import telebot
+
 from . import config
 
 token = config.token
@@ -81,57 +82,65 @@ class sqliteConnector:
 
     # Функция, возвращающая общую информацию по всем пользователям
     def get_common_info(self):
-        dict = {}
-
-        with sqlite3.connect('mydatabase.db') as conn:
-            sql = """SELECT * FROM notes"""
-            cursor = conn.cursor()
-            records = cursor.execute(sql)
-            records = sorted(records, key=lambda r: r[4])
-            for info, bill_iter in itertools.groupby(records, key=lambda r: str(r[1]) + "?" + str(r[4])):
-                full_bill = sum([i[3] for i in bill_iter])
-                dict[info] = full_bill
-        message = ""
-        index = 1
-        for el in dict:
-            one, two = el.split('?')
-            message += '{}. [{}](tg://user?id={}) - {} рублей \n'.format(index, one, two, dict[el])
-            index += 1
-        return message
+        try:
+            dict = {}
+            with sqlite3.connect('mydatabase.db') as conn:
+                sql = """SELECT * FROM notes"""
+                cursor = conn.cursor()
+                records = cursor.execute(sql)
+                records = sorted(records, key=lambda r: r[4])
+                for info, bill_iter in itertools.groupby(records, key=lambda r: str(r[1]) + "?" + str(r[4])):
+                    full_bill = sum([i[3] for i in bill_iter])
+                    dict[info] = full_bill
+            message = ""
+            index = 1
+            for el in dict:
+                one, two = el.split('?')
+                message += '{}. [{}](tg://user?id={}) - {} рублей \n'.format(index, one, two, dict[el])
+                index += 1
+            return message
+        except Exception:
+            return 123
 
     # Функция, возвращающая список пользователей
     def get_users(self):
-        st = ''
-        index = 1
-        with sqlite3.connect('mydatabase.db') as conn:
-            sql = """SELECT DISTINCT username FROM notes """
-            cursor = conn.cursor()
-            records = cursor.execute(sql)
-            for el in records:
-                st += "{}. {}\n".format(index, str(el)[2:-3])
-                index += 1
-        return st
+        try:
+            st = ''
+            index = 1
+            with sqlite3.connect('mydatabase.db') as conn:
+                sql = """SELECT DISTINCT username FROM notes """
+                cursor = conn.cursor()
+                records = cursor.execute(sql)
+                for el in records:
+                    st += "{}. {}\n".format(index, str(el)[2:-3])
+                    index += 1
+            return st
+        except Exception:
+            return "Пока данных нет"
 
     # Информация относительно определенного лица -  зависит от выбора
     def get_private_info(self, number):
-        with sqlite3.connect('mydatabase.db') as conn:
-            sql = """SELECT DISTINCT username, chat_id FROM notes """
-            cursor = conn.cursor()
-            records = cursor.execute(sql)
-            name = ''
-            chat_id = 0
-            index = 1
-            for el in records:
-                if index == number:
-                    name = el[0]
-                    chat_id = el[1]
-                    break
-                index += 1
-            records = conn.cursor().execute("""SELECT * FROM notes WHERE username = (?)""", (name,))
-            st = 'Информация по пользователю [{}](tg://user?id={}):\n'.format(name, chat_id)
-            for el in records:
-                st += str(el[2]) + ' потрачено ' + str(el[3]) + ' рублей\n'
-            return st
+        try:
+            with sqlite3.connect('mydatabase.db') as conn:
+                sql = """SELECT DISTINCT username, chat_id FROM notes """
+                cursor = conn.cursor()
+                records = cursor.execute(sql)
+                name = ''
+                chat_id = 0
+                index = 1
+                for el in records:
+                    if index == number:
+                        name = el[0]
+                        chat_id = el[1]
+                        break
+                    index += 1
+                records = conn.cursor().execute("""SELECT * FROM notes WHERE username = (?)""", (name,))
+                st = 'Информация по пользователю [{}](tg://user?id={}):\n'.format(name, chat_id)
+                for el in records:
+                    st += str(el[2]) + ' потрачено ' + str(el[3]) + ' рублей\n'
+                return st
+        except Exception:
+            return "Пока данных нет"
 
     # По истечению 7 дней данные затираются, формируется PDF документ, отправляемый...
     def send_pdf(self):
